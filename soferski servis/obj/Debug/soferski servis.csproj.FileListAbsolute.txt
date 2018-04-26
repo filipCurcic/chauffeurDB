@@ -8,3 +8,6 @@ C:\Users\Filip\Documents\databases\soferski servis\soferski servis\obj\Debug\sof
 C:\Users\Filip\Documents\databases\soferski servis\soferski servis\obj\Debug\soferski servis.csproj.CoreCompileInputs.cache
 C:\Users\Filip\Documents\databases\soferski servis\soferski servis\obj\Debug\soferski servis.exe
 C:\Users\Filip\Documents\databases\soferski servis\soferski servis\obj\Debug\soferski servis.pdb
+C:\Users\Filip\Documents\databases\soferski servis\soferski servis\bin\Debug\MySql.Data.dll
+C:\Users\Filip\Documents\databases\soferski servis\soferski servis\bin\Debug\MySql.Data.xml
+C:\Users\Filip\Documents\databases\soferski servis\soferski servis\obj\Debug\soferski servis.csproj.CopyComplete
