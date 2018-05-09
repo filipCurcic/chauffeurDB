@@ -77,6 +77,7 @@ namespace soferski_servis
             MySqlCommand commandDatabase = new MySqlCommand(query1, databaseConnection);
             commandDatabase.CommandTimeout = 60;
             databaseConnection.Open();
+
             MySqlDataReader myReader = commandDatabase.ExecuteReader();
         }
         
@@ -88,12 +89,14 @@ namespace soferski_servis
             switch (index)
             {
                 case 0:
-                    q = "CREATE TABLE asd (id INT);";
+                    q = "CREATE TABLE IF NOT EXISTS gorivo (idgorivo INT NOT NULL AUTO_INCREMENT, cena INT, kolicina INT, PRIMARY KEY(idgorivo));";
                     runQuery(q);
+                    databaseConnection.Close();
                     break;
                 case 1:
-                    q = "CREATE TABLE k2 (kejs2 INT);";
+                    q = "CREATE TABLE IF NOT EXISTS servis (idservis INT NOT NULL AUTO_INCREMENT, datum INT, cena INT, vozilo_idvozilo INT, PRIMARY KEY(idservis), FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo));";
                     runQuery(q);
+                    databaseConnection.Close();
                     break;
                 case 2:
                     textBox1.Text = "3";
@@ -172,13 +175,28 @@ namespace soferski_servis
             string[] prezimena = new string[10] { "Milanovic", "Petrovic", "Dejanovic", "Pavlovic", "Markovic", "Vujosevic", "Mitrovic", "Vucic", "Maksimovic", "Stanic"};
             int[] godine = new int[10] { 1994, 1992, 1999, 1991, 1994, 1998, 1997, 2000, 1989, 2001};
             string[] clanstvo = new string[10] { "STANDARD", "PREMIUM", "STANDARD", "STANDARD", "PREMIUM", "PREMIUM", "PREMIUM", "STANDARD", "STANDARD", "PREMIUM" };
+            int[] gorivoCena = new int[10] {1000, 2000, 3000, 4000, 10000, 12000, 2500, 9000, 5000, 7600 };
+            int[] gorivoKolicina = new int[10] { 10, 20, 25, 30, 50, 100, 55, 40, 90, 85 };
+            int[] servisDatum = new int[10] { 2017-03-15, 2015-06-02, 2011-01-19, 2014-09-22, 2013-12-12, 2015-05-21, 2017-09-29, 2017-03-15, 2016-01-03, 2010-10-20 };
+            int[] servisCena = new int[10] { 12000, 20000, 5000, 50000, 100000, 15000, 30000, 8000, 19000, 20000 };
             for (int i = 0; i < 20; i++)
             {
-                string osoba = imena1[Ran()] + " " + prezimena[Ran()] + " " + godine[Ran()] + " " + clanstvo[Ran()];
-                Console.WriteLine(osoba);
-            }
+                
+                string putnik = "INSERT INTO putnik(ime, prezime, godina_rodjenja, clanstvo) VALUES ('" + imena1[Ran()] + "','" + prezimena[Ran()] + "','" + godine[Ran()] + "','" + clanstvo[Ran()] + "')";
+                string sofer = "INSERT INTO sofer(ime, prezime, godina_zaposljavanja) VALUES ('" + imena1[Ran()] + "','" + prezimena[Ran()] + "','" + godine[Ran()] + "')";
+                string gorivo = "INSERT INTO gorivo(cena, kolicina) VALUES('" + gorivoCena[Ran()] + "','" + gorivoKolicina[Ran()] + "')";
+                string servis = "INSERT INTO servis(datum, cena, vozilo_idvozilo) VALUES('" + servisDatum[Ran()] + "','" + servisCena[Ran()] + "' ,'" + Ran() + "')";
+
+                runQuery(servis);
+                databaseConnection.Close();
+                
+                runQuery(gorivo);
+                databaseConnection.Close();
 
             }
+
+
+        }
         static Random rnd = new Random();
         private int Ran()
         {
