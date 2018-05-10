@@ -41,30 +41,112 @@ namespace soferski_servis
         
         private void fillTable()
         {
-
-            string q2 = "CREATE TABLE IF NOT EXISTS vozilo (idvozilo INT NOT NULL AUTO_INCREMENT, brend VARCHAR(45), model VARCHAR(45), pocetak_rada INT, PRIMARY KEY(idvozilo));";
-            runQuery(q2);
-            databaseConnection.Close();
             string q = "INSERT INTO vozilo(brend, model, pocetak_rada) VALUES ('Mercedes Benz', 'S400', 2013), ('BMW', 'x5', 2012), ('Audi', 'A8', 2015), ('BMW', '750i', 2012), ('Audi', 'q7', 2011), ('Opel', 'Insignia', 2012), ('Lincoln', 'Navigator', 2010), ('Chrysler', 'One', 2010), ('Mazda', '6', 2015), ('Mercedes Benz', 'E200', 2016), ('Audi', 'TT', 2012), ('VW', 'Passat', 2017), ('Audi', 'A3', 2012), ('Range Rover', 'Sport', 2011), ('Bentley', 'Continental', 2014)";
             runQuery(q);
+            databaseConnection.Close();
+            string nacin_p = "INSERT INTO nacin_placanja(naziv) VALUES ('Kes'), ('Kreditna Kartica'), ('Online');";
+            runQuery(nacin_p);
             databaseConnection.Close();
         }
 
         private void createTables()
         {
-            string q1 = "CREATE TABLE sofer (idsofer INT NOT NULL AUTO_INCREMENT, ime VARCHAR(45), prezime VARCHAR(45), datum_zaposljavanja VARCHAR(45), PRIMARY KEY(idsofer));";
-            string q2 = "CREATE TABLE vozilo (idvozilo INT NOT NULL AUTO_INCREMENT, brend VARCHAR(45), model VARCHAR(45), pocetak_rada INT, PRIMARY KEY(idvozilo));";
-            string q3 = "CREATE TABLE lokacija (idlokacija INT NOT NULL AUTO_INCREMENT, naziv VARCHAR(500), PRIMARY KEY(idlokacija));";
-            string q4 = "CREATE TABLE gorivo (idgorivo INT NOT NULL AUTO_INCREMENT, cena INT, PRIMARY KEY(idgorivo));";
-            string q5 = "CREATE TABLE tura (idtura INT NOT NULL AUTO_INCREMENT, datum DATE, predjeni_put INT, sofer_idsofer INT, vozilo_idvozilo INT, lokacija_idlokacija INT, gorivno_idgorivo INT, kolicina_goriva INT, PRIMARY KEY(idtura), FOREIGN KEY(sofer_idsofer) REFERENCES sofer(idsofer), FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo), FOREIGN KEY(lokacija_idlokacija) REFERENCES lokacija(idlokacija), FOREIGN KEY(gorivo_idgorivo) REFERENCES gorivo(idgorivo);";
-            string q6 = "CREATE TABLE putnik (idputnik INT NOT NULL AUTO_INCREMENT, ime VARCHAR(100), prezime VARCHAR(100), godina_rodjenja INT, clanstvo ENUM('STANDARD', 'PREMIUM'), PRIMARY KEY(idputnik)";
-            string q7 = "CREATE TABLE servis (idservis INT NOT NULL AUTO_INCREMENT, datum DATE, cena INT, vozilo_idvozilo INT, PRIMARY KEY(idservis), FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo);";
-            string q8 = "CREATE TABLE soferi_voila (sofer_idsofer INT NOT NULL, vozilo_idvozilo INT NOT NULL, FOREIGN KEY(sofer_idsofer) REFERENCES sofer(idsofer), FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo);";
-            string q9 = "CREATE TABLE nacin_placanja (idnacin_placanja INT NOT NULL AUTO_INCREMENT, naziv VARCHAR(45), PRIMARY KEY(idnacin_placanja);";
-            string q10 = "CREATE TABLE racun (idracun INT NOT NULL AUTO_INCREMENT, iznos INT, datum DATE, nacin_placanja_id INT NOT NULL, tura_idtura INT NOT NULL, PRIMARY KEY(idracun), FOREIGN KEY(nacin_placanja_id) REFERENCES nacin_placanja(idnacin_placanja), FOREIGN KEY (tura_idtura) REFERENCES tura(idtura);";
-            string q11 = "CREATE TABLE premium_putnici (idpremium_putnici INT NOT NULL AUTO_INCREMENT, putnik_idputnik INT NOT NULL, predjen_put INT, PRIMARY KEY(idpremium_putnici), FOREIGN KEY(putnik_idputnik) REFERENCES putnik(idputnik);";
-            string q12 = "CREATE TABLE plate (idplate INT NOT NULL AUTO_INCREMENT, sofer_idsofer INT NOT NULL, iznos INT, datum DATE, PRIMARY KEY(idplate), FOREIGN KEY (sofer_idsofer) REFERENCES sofer(idsofer);";
-            string q13 = "CREATE TABLE putnici_u_turi (putnik_idputnik INT NOT NULL, tura_idtura INT NOT NULL, FOREIGN KEY(putnik_idputnik) REFERENCES putnik(idputnik), FOREIGN KEY (tura_idtura) REFERENCES tura(idtura);";
+            string q1 = "CREATE TABLE sofer " +
+                " (idsofer INT NOT NULL AUTO_INCREMENT," +
+                " ime VARCHAR(45), prezime VARCHAR(45)," +
+                " godina_zaposljavanja INT," +
+                " PRIMARY KEY(idsofer));";
+
+
+            string q2 = "CREATE TABLE vozilo " +
+                " (idvozilo INT NOT NULL AUTO_INCREMENT," +
+                " brend VARCHAR(45)," +
+                " model VARCHAR(45)," +
+                " pocetak_rada INT," +
+                " PRIMARY KEY(idvozilo));";
+            
+
+
+            string q4 = "CREATE TABLE gorivo " +
+                "(idgorivo INT NOT NULL AUTO_INCREMENT, " +
+                "cena INT, " +
+                "kolicina INT, " +
+                "PRIMARY KEY(idgorivo));";
+
+
+            string q5 = "CREATE TABLE tura " +
+                " (idtura INT NOT NULL AUTO_INCREMENT," +
+                " datum DATE," +
+                " pocetna_lokacija VARCHAR(100)," +
+                " destinacija VARCHAR(100)," +
+                " iznos INT," +
+                " kilometraza INT," +
+                " sofer_idsofer INT NOT NULL," +
+                " vozilo_idvozilo INT NOT NULL," +
+                " gorivo_idgorivo INT NOT NULL," +
+                " idnp INT NOT NULL," +
+                " PRIMARY KEY(idtura)," +
+                " FOREIGN KEY(sofer_idsofer) REFERENCES sofer(idsofer), " +
+                " FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo)," +
+                " FOREIGN KEY(gorivo_idgorivo) REFERENCES gorivo(idgorivo), " +
+                " FOREIGN KEY(idnp) REFERENCES nacin_placanja(idnacin_placanja));";
+
+            string q6 = "CREATE TABLE putnik" +
+                " (idputnik INT NOT NULL AUTO_INCREMENT," +
+                " ime VARCHAR(100)," +
+                " prezime VARCHAR(100)," +
+                " godina_rodjenja INT," +
+                " clanstvo ENUM('STANDARD', 'PREMIUM')," +
+                " PRIMARY KEY(idputnik));";
+
+
+            string q7 = "CREATE TABLE servis " +
+                " (idservis INT NOT NULL AUTO_INCREMENT, " +
+                " datum DATE," +
+                " cena INT," +
+                " vozilo_idvozilo INT NOT NULL, " +
+                " PRIMARY KEY(idservis), " +
+                " FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo));";
+
+            string q9 = "CREATE TABLE nacin_placanja" +
+                " (idnacin_placanja INT NOT NULL AUTO_INCREMENT," +
+                " naziv VARCHAR(45), " +
+                " PRIMARY KEY(idnacin_placanja));";
+
+            string q11 = "CREATE TABLE premium_putnici " +
+                " (idpremium_putnici INT NOT NULL AUTO_INCREMENT, " +
+                " putnik_idputnik INT NOT NULL, " +
+                " predjen_put INT," +
+                " PRIMARY KEY(idpremium_putnici)," +
+                " FOREIGN KEY(putnik_idputnik) REFERENCES putnik(idputnik));";
+
+            string q12 = "CREATE TABLE plate" +
+                " (idplate INT NOT NULL AUTO_INCREMENT, " +
+                " sofer_idsofer INT NOT NULL," +
+                " iznos INT," +
+                " datum DATE, " +
+                " PRIMARY KEY(idplate), " +
+                " FOREIGN KEY (sofer_idsofer) REFERENCES sofer(idsofer));";
+
+            string q13 = "CREATE TABLE putnici_u_turi" +
+                " (putnik_idputnik INT NOT NULL, " +
+                " tura_idtura INT NOT NULL, " +
+                " FOREIGN KEY(putnik_idputnik) REFERENCES putnik(idputnik), " +
+                " FOREIGN KEY (tura_idtura) REFERENCES tura(idtura));";
+
+            string[] queries = new string[10] { q1, q2, q4, q6, q9, q7, q5, q11, q12, q13 };
+
+            for (int i = 0; i<10; i++)
+            {
+                Console.WriteLine(i);
+                Console.WriteLine(queries[i]);
+                runQuery(queries[i]);
+                databaseConnection.Close();
+                if (i == 9)
+                {
+                    MessageBox.Show("Success");
+                }
+            }
 
             
         }
@@ -169,6 +251,11 @@ namespace soferski_servis
             
         }
 
+        public static string dtfordb(DateTime dt)
+        {
+            return dt.Year + "-" + dt.Month + "-" + dt.Day + " " + dt.TimeOfDay;
+        }
+
         private void generateData()
         {
             string[] imena1 = new string[10] {"Jovana", "Dragan", "Dejan", "Dragana", "Petar", "Marko", "Aleksandar", "Luka", "Ivan", "Tijana"};
@@ -177,22 +264,67 @@ namespace soferski_servis
             string[] clanstvo = new string[10] { "STANDARD", "PREMIUM", "STANDARD", "STANDARD", "PREMIUM", "PREMIUM", "PREMIUM", "STANDARD", "STANDARD", "PREMIUM" };
             int[] gorivoCena = new int[10] {1000, 2000, 3000, 4000, 10000, 12000, 2500, 9000, 5000, 7600 };
             int[] gorivoKolicina = new int[10] { 10, 20, 25, 30, 50, 100, 55, 40, 90, 85 };
-            int[] servisDatum = new int[10] { 2017-03-15, 2015-06-02, 2011-01-19, 2014-09-22, 2013-12-12, 2015-05-21, 2017-09-29, 2017-03-15, 2016-01-03, 2010-10-20 };
+            int[] godineZaDatum = new int[10] {2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018};
+            int[] meseciZaDatum = new int[10] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+            int[] daniZaDatum = new int[10] { 12, 20, 28, 9, 1, 6, 16, 22, 4, 15 };
             int[] servisCena = new int[10] { 12000, 20000, 5000, 50000, 100000, 15000, 30000, 8000, 19000, 20000 };
+            int[] predjenPut = new int[10] { 100, 500, 50, 250, 1020, 130, 300, 20, 500, 91 };
+            string[] destinacije = new string[10] { "Beograd", "Fruska Gora", "Sremski Karlovci", "Subotica", "Nis", "Novi Sad", "Jagodina", "Kragujevac", "Zrenjanin", "Uzice" };
+            string[] pocetna_lokacija = new string[10] { "Sremska Mitrovica", "Becej", "Titel", "Sajkas", "Sombor", "Valjevo", "Kraljevo", "Futog", "Zemun", "Obrenovac" };
+            int[] iznos = new int[10] {2000, 1000, 500, 3000, 2500, 1300, 5000, 2500, 200, 800};
+            int[] kilometraza = new int[10] { 100, 200, 300, 150, 50, 70, 80, 250, 30, 220 };
+            int[] iznosPlate = new int[10] { 40000, 50000, 45000, 55000, 60000, 65000, 70000, 80000, 43000, 71000 };
+            int[] insertedIds = new int[20] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+            Random r2 = new Random();
+            Random r3 = new Random();
+            Random r4 = new Random(); 
+
             for (int i = 0; i < 20; i++)
             {
+                int s2 = r2.Next(0, i+1);
+                int s3 = r2.Next(0, i + 1);
+                int s4 = r2.Next(0, i + 1);
+                int vh = r4.Next(1, 16);
+                int ss = r3.Next(1, 4);
+                string dtServis = dtfordb(new DateTime(godineZaDatum[Ran()], meseciZaDatum[Ran()], daniZaDatum[Ran()]));
+                string dtPlate = dtfordb(new DateTime(godineZaDatum[Ran()], meseciZaDatum[Ran()], daniZaDatum[Ran()]));
+                string dTure = dtfordb(new DateTime(godineZaDatum[Ran()], meseciZaDatum[Ran()], daniZaDatum[Ran()]));
+
+                insertedIds[i] = i + 1;
+                Console.WriteLine(insertedIds[0 + i]);
                 
                 string putnik = "INSERT INTO putnik(ime, prezime, godina_rodjenja, clanstvo) VALUES ('" + imena1[Ran()] + "','" + prezimena[Ran()] + "','" + godine[Ran()] + "','" + clanstvo[Ran()] + "')";
+
                 string sofer = "INSERT INTO sofer(ime, prezime, godina_zaposljavanja) VALUES ('" + imena1[Ran()] + "','" + prezimena[Ran()] + "','" + godine[Ran()] + "')";
+
                 string gorivo = "INSERT INTO gorivo(cena, kolicina) VALUES('" + gorivoCena[Ran()] + "','" + gorivoKolicina[Ran()] + "')";
-                string servis = "INSERT INTO servis(datum, cena, vozilo_idvozilo) VALUES('" + servisDatum[Ran()] + "','" + servisCena[Ran()] + "' ,'" + Ran() + "')";
 
-                runQuery(servis);
-                databaseConnection.Close();
-                
-                runQuery(gorivo);
-                databaseConnection.Close();
+                string servis = "INSERT INTO servis(datum, cena, vozilo_idvozilo) VALUES('" + dtServis + "','" + servisCena[Ran()] + "' ,'" + vh + "')";
 
+                string premium_putnici = "INSERT INTO premium_putnici(putnik_idputnik, predjen_put) VALUES ( '" + insertedIds[s2] + "', '" + predjenPut[Ran()] + "')";
+
+                string plate = "INSERT INTO plate(sofer_idsofer, iznos, datum) VALUES ( '" + insertedIds[s2] + "', '" + iznosPlate[Ran()] + "', '" + dtPlate + "')";
+
+                string putnici_u_turi = "INSERT INTO putnici_u_turi(putnik_idputnik, tura_idtura) VALUES ( '" + insertedIds[s2] + "', '" + insertedIds[s3] + "')";
+
+                string tura = "INSERT INTO tura" +
+                    " (datum, pocetna_lokacija, destinacija," +
+                    " iznos, kilometraza, sofer_idsofer, " +
+                    "vozilo_idvozilo, gorivo_idgorivo, idnp) VALUES ( '" + dTure + "', '" + pocetna_lokacija[Ran()] + "', '" + destinacije[Ran()] + "', '" + iznos[Ran()] + "'" +
+                    ", '" + kilometraza[Ran()] + "', '" + insertedIds[s2] + "', '" + vh + "', '" + insertedIds[s4] + "', '" + ss + "')";
+
+                string[] queries = new string[8] { putnik, sofer, gorivo, tura, putnici_u_turi, servis, premium_putnici, plate };
+
+                for (int j = 0; j<queries.Length; j++)
+                {
+                    runQuery(queries[j]);
+                    databaseConnection.Close();
+                    if (i == queries.Length)
+                    {
+                        MessageBox.Show("Success");
+                    }
+                }
             }
 
 
@@ -201,7 +333,6 @@ namespace soferski_servis
         private int Ran()
         {
             int single = rnd.Next(1, 10);
-            
             return single;
         }
 
@@ -237,12 +368,43 @@ namespace soferski_servis
 
         private void button2_Click_1(object sender, EventArgs e)
         {
-            fillTable();
+            DialogResult result = MessageBox.Show("Are you sure you want to drop all the tables?", "Warning", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    string drop = "DROP TABLE premium_putnici, putnici_u_turi, tura, nacin_placanja, plate, servis, vozilo, sofer, gorivo, putnik";
+                    MessageBox.Show("Success");
+                    runQuery(drop);
+                    databaseConnection.Close();
+                    break;
+
+            }
+            
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
             generateData();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            createTables();
+            fillTable();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            Random r2 = new Random();
+            
+            int[] insertedIds = new int[20] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            for (int i = 0; i<10;i++)
+            {
+                int s2 = r2.Next(0, i + 1);
+                insertedIds[i] = i + 1;
+                Console.WriteLine(insertedIds[i]);
+                Console.WriteLine(s2);
+            }
         }
     }
 }
