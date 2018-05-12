@@ -151,7 +151,7 @@ namespace soferski_servis
             
         }
 
-        
+        MySqlDataReader myReader;
 
         public void runQuery(string query1)
         {
@@ -160,7 +160,30 @@ namespace soferski_servis
             commandDatabase.CommandTimeout = 60;
             databaseConnection.Open();
 
-            MySqlDataReader myReader = commandDatabase.ExecuteReader();
+            myReader = commandDatabase.ExecuteReader();
+        }
+
+        private string GetResult(MySqlDataReader rd)
+        {
+            if (rd.HasRows)
+            {
+                MessageBox.Show("Your query generated results");
+                StringBuilder rezultat = new StringBuilder();
+
+                while (rd.Read())
+                {
+                    for (int i = 0; i < myReader.FieldCount; i++)
+                    {
+                        rezultat.Append(myReader.GetString(i));
+                        rezultat.Append(" ");
+                        
+                    }
+                    rezultat.Append("\n");
+
+                }
+                return rezultat.ToString();
+            }
+            return null;
         }
         
         public void button1_Click(object sender, EventArgs e)
@@ -171,8 +194,9 @@ namespace soferski_servis
             switch (index)
             {
                 case 0:
-                    q = "CREATE TABLE IF NOT EXISTS gorivo (idgorivo INT NOT NULL AUTO_INCREMENT, cena INT, kolicina INT, PRIMARY KEY(idgorivo));";
+                    q = "SELECT tura.sofer_idsofer, sofer.ime FROM tura WHERE tura.datum = (SELECT DATEADD(month, -1, GETDATE())) JOIN sofer ON tura.sofer_idsofer = sofer.idsofer GROUP BY tura.sofer_idsofer ORDER BY COUNT(*) DESC LIMIT 1;";
                     runQuery(q);
+                    addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 1:
@@ -239,11 +263,12 @@ namespace soferski_servis
             }
             
         }
-
-        private string addToTb()
+        
+        private void addToTb(string text)
         {
-            string tekst = comboBox1.SelectedItem.ToString();
-            return tekst;
+            textBox1.Text = text;
+            textBox1.Text = text.Replace("\n", Environment.NewLine);
+
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -336,10 +361,7 @@ namespace soferski_servis
             return single;
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            textBox1.Text = addToTb();
-        }
+        
         
         private void onloadCb()
         {
@@ -393,18 +415,6 @@ namespace soferski_servis
             fillTable();
         }
 
-        private void button5_Click(object sender, EventArgs e)
-        {
-            Random r2 = new Random();
-            
-            int[] insertedIds = new int[20] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            for (int i = 0; i<10;i++)
-            {
-                int s2 = r2.Next(0, i + 1);
-                insertedIds[i] = i + 1;
-                Console.WriteLine(insertedIds[i]);
-                Console.WriteLine(s2);
-            }
-        }
+        
     }
 }
