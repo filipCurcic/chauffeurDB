@@ -81,6 +81,7 @@ namespace soferski_servis
                 " destinacija VARCHAR(100)," +
                 " iznos INT," +
                 " kilometraza INT," +
+                " rejting_sofera INT, " +
                 " sofer_idsofer INT NOT NULL," +
                 " vozilo_idvozilo INT NOT NULL," +
                 " gorivo_idgorivo INT NOT NULL," +
@@ -189,26 +190,33 @@ namespace soferski_servis
         public void button1_Click(object sender, EventArgs e)
         {
             int index = comboBox1.SelectedIndex;
-
+            string tst = " JOIN sofer ON tura.sofer_idsofer = sofer.idsofer";
             string q;
             switch (index)
             {
                 case 0:
-                    q = "SELECT tura.sofer_idsofer, sofer.ime FROM tura WHERE tura.datum = (SELECT DATEADD(month, -1, GETDATE())) JOIN sofer ON tura.sofer_idsofer = sofer.idsofer GROUP BY tura.sofer_idsofer ORDER BY COUNT(*) DESC LIMIT 1;";
+                    q = "SELECT tura.sofer_idsofer, sofer.ime, sofer.prezime FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer WHERE tura.datum > (SELECT DATE_ADD(NOW(), INTERVAL -1 YEAR)) GROUP BY tura.sofer_idsofer ORDER BY COUNT(*) DESC LIMIT 1;";
                     runQuery(q);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 1:
-                    q = "CREATE TABLE IF NOT EXISTS servis (idservis INT NOT NULL AUTO_INCREMENT, datum INT, cena INT, vozilo_idvozilo INT, PRIMARY KEY(idservis), FOREIGN KEY(vozilo_idvozilo) REFERENCES vozilo(idvozilo));";
+                    q = "SELECT AVG(rejting_sofera), sofer.ime, sofer.prezime, sofer_idsofer FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer WHERE tura.datum > (SELECT DATE_ADD(NOW(), INTERVAL -1 YEAR)) GROUP BY sofer_idsofer ASC LIMIT 1";
                     runQuery(q);
+                    addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 2:
-                    textBox1.Text = "3";
+                    q = "";
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 3:
-                    textBox1.Text = "4";
+                    q = "SELECT pocetna_lokacija, destinacija, MAX(tura.iznos - gorivo.cena) FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo;";
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 4:
                     textBox1.Text = "5";
@@ -287,7 +295,7 @@ namespace soferski_servis
             string[] prezimena = new string[10] { "Milanovic", "Petrovic", "Dejanovic", "Pavlovic", "Markovic", "Vujosevic", "Mitrovic", "Vucic", "Maksimovic", "Stanic"};
             int[] godine = new int[10] { 1994, 1992, 1999, 1991, 1994, 1998, 1997, 2000, 1989, 2001};
             string[] clanstvo = new string[10] { "STANDARD", "PREMIUM", "STANDARD", "STANDARD", "PREMIUM", "PREMIUM", "PREMIUM", "STANDARD", "STANDARD", "PREMIUM" };
-            int[] gorivoCena = new int[10] {1000, 2000, 3000, 4000, 10000, 12000, 2500, 9000, 5000, 7600 };
+            int[] gorivoCena = new int[10] {1000, 2000, 1500, 800, 10000, 750, 500, 1100, 1700, 1600 };
             int[] gorivoKolicina = new int[10] { 10, 20, 25, 30, 50, 100, 55, 40, 90, 85 };
             int[] godineZaDatum = new int[10] {2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018};
             int[] meseciZaDatum = new int[10] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -296,10 +304,11 @@ namespace soferski_servis
             int[] predjenPut = new int[10] { 100, 500, 50, 250, 1020, 130, 300, 20, 500, 91 };
             string[] destinacije = new string[10] { "Beograd", "Fruska Gora", "Sremski Karlovci", "Subotica", "Nis", "Novi Sad", "Jagodina", "Kragujevac", "Zrenjanin", "Uzice" };
             string[] pocetna_lokacija = new string[10] { "Sremska Mitrovica", "Becej", "Titel", "Sajkas", "Sombor", "Valjevo", "Kraljevo", "Futog", "Zemun", "Obrenovac" };
-            int[] iznos = new int[10] {2000, 1000, 500, 3000, 2500, 1300, 5000, 2500, 200, 800};
+            int[] iznos = new int[10] {2200, 2800, 5000, 3000, 2500, 13000, 5000, 2500, 2705, 8000};
             int[] kilometraza = new int[10] { 100, 200, 300, 150, 50, 70, 80, 250, 30, 220 };
             int[] iznosPlate = new int[10] { 40000, 50000, 45000, 55000, 60000, 65000, 70000, 80000, 43000, 71000 };
             int[] insertedIds = new int[20] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+            int[] rejtinzi = new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
             Random r2 = new Random();
             Random r3 = new Random();
@@ -335,9 +344,9 @@ namespace soferski_servis
 
                 string tura = "INSERT INTO tura" +
                     " (datum, pocetna_lokacija, destinacija," +
-                    " iznos, kilometraza, sofer_idsofer, " +
+                    " iznos, kilometraza, rejting_sofera, sofer_idsofer, " +
                     "vozilo_idvozilo, gorivo_idgorivo, idnp) VALUES ( '" + dTure + "', '" + pocetna_lokacija[Ran()] + "', '" + destinacije[Ran()] + "', '" + iznos[Ran()] + "'" +
-                    ", '" + kilometraza[Ran()] + "', '" + insertedIds[s2] + "', '" + vh + "', '" + insertedIds[s4] + "', '" + ss + "')";
+                    ", '" + kilometraza[Ran()] + "', '" + rejtinzi[Ran()] + "', '" + insertedIds[s2] + "', '" + vh + "', '" + insertedIds[s4] + "', '" + ss + "')";
 
                 string[] queries = new string[8] { putnik, sofer, gorivo, tura, putnici_u_turi, servis, premium_putnici, plate };
 
@@ -366,7 +375,7 @@ namespace soferski_servis
         private void onloadCb()
         {
     
-            comboBox1.Items.Add("1. Šofer sa najviše obavljenih tura u prethodnom mesecu poslovanja");
+            comboBox1.Items.Add("1. Šofer sa najviše obavljenih tura u prethodnoj godini poslovanja");
             comboBox1.Items.Add("2. Šofer sa najboljim prosecnim rejtingom na godisnjim nivou");
             comboBox1.Items.Add("3. Tura sa najvećim prosečnim brojem putnika u letnjem periodu");
             comboBox1.Items.Add("4. Tura koja donosi najveći profit");
