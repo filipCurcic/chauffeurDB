@@ -272,7 +272,11 @@ namespace soferski_servis
                     databaseConnection.Close();
                     break;
                 case 8:
-                    textBox1.Text = "9";
+                    q = "SELECT (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 10 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS deset, (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 50 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS pdst, (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 100 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS sto";
+
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 9:
                     q = " SELECT nacin_placanja.naziv, COUNT(nacin_placanja.naziv) AS npz" +
@@ -287,7 +291,11 @@ namespace soferski_servis
                     databaseConnection.Close();
                     break;
                 case 10:
-                    textBox1.Text = "SELECT vozilo.brend, vozilo.model FROM vozilo";
+                    textBox1.Text = "SELECT vozilo.brend, vozilo.model," +
+                        " (SELECT SUM(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2018) THEN tura.kilometraza ELSE null END)) - (SELECT SUM(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2017) THEN tura.kilometraza ELSE null END)) as razlika " +
+                        " FROM tura JOIN vozilo ON tura.vozilo_idvozilo = vozilo.idvozilo " +
+                        " GROUP BY vozilo.model " +
+                        " ORDER BY razlika DESC LIMIT 1";
                     break;
                 case 11:
                     q = " SELECT YEAR(NOW()) - putnik.godina_rodjenja AS gd " +
@@ -300,7 +308,10 @@ namespace soferski_servis
                     databaseConnection.Close();
                     break;
                 case 12:
-                    textBox1.Text = "13";
+                    q = " ";
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 13:
                     textBox1.Text = "14";
@@ -380,7 +391,7 @@ namespace soferski_servis
             string[] destinacije = new string[10] { "Beograd", "Fruska Gora", "Sremski Karlovci", "Subotica", "Nis", "Novi Sad", "Jagodina", "Kragujevac", "Zrenjanin", "Uzice" };
             string[] pocetna_lokacija = new string[10] { "Sremska Mitrovica", "Becej", "Titel", "Sajkas", "Sombor", "Valjevo", "Kraljevo", "Futog", "Zemun", "Obrenovac" };
             int[] iznos = new int[10] {2200, 2800, 5000, 3000, 2500, 13000, 5000, 2500, 2705, 8000};
-            int[] kilometraza = new int[10] { 100, 200, 300, 150, 50, 70, 80, 250, 30, 220 };
+            int[] kilometraza = new int[10] { 100, 200, 300, 150, 50, 70, 80, 250, 10, 220 };
             int[] iznosPlate = new int[10] { 40000, 50000, 45000, 55000, 60000, 65000, 70000, 80000, 43000, 71000 };
             int[] insertedIds = new int[60] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             int[] rejtinzi = new int[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -458,7 +469,7 @@ namespace soferski_servis
             comboBox1.Items.Add("6.  Šofer sa najboljim odnosom potrošenog goriva i pređene kilometraže");
             comboBox1.Items.Add("7. Vozilo sa najvecim troskovima servis u poslednji godinu dana");
             comboBox1.Items.Add("8. Najmanje popularno vozilo kod putnika mladjih od 25 godina u letnjem periodu");
-            comboBox1.Items.Add("9.  Nacin placanja koji donosi najmanji profit");
+            comboBox1.Items.Add("9.  Najprofitabilnija destinacija na 10km, na 50km I na 100km");
             comboBox1.Items.Add("10.  Najpopularniji nacin placanja kod putnika ispod 25 godina");
             comboBox1.Items.Add("11. Vozilo sa najvećim porastom kilometraže u poslednjoj godini poslovanja");
             comboBox1.Items.Add("12. Starost putnika sa najmanje zastupljenim premium clanstvom  ");
