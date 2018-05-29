@@ -97,7 +97,6 @@ namespace soferski_servis
                 " ime VARCHAR(100)," +
                 " prezime VARCHAR(100)," +
                 " godina_rodjenja INT," +
-                " clanstvo ENUM('STANDARD', 'PREMIUM')," +
                 " PRIMARY KEY(idputnik));";
 
 
@@ -308,20 +307,33 @@ namespace soferski_servis
                     databaseConnection.Close();
                     break;
                 case 12:
-                    q = " ";
+                    q = " SELECT vozilo.brend, vozilo.model, tura.iznos / gorivo.kolicina as odnos" +
+                        " FROM tura JOIN vozilo on tura.vozilo_idvozilo = vozilo.idvozilo " +
+                        " JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo" +
+                        " ORDER BY odnos ASC LIMIT 1";
                     runQuery(q);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 13:
-                    textBox1.Text = "14";
+                    q = "SELECT sofer.ime, sofer.prezime, AVG(tura.rejting_sofera) as s1 FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer WHERE (SELECT AVG(tura.rejting_sofera) WHERE YEAR(tura.datum) = 2018) > (SELECT AVG(tura.rejting_sofera) WHERE YEAR(tura.datum) = 2017) GROUP BY tura.sofer_idsofer";
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 14:
-                    textBox1.Text = "15";
+                    q = "SELECT (SELECT SUM(tura.iznos - gorivo.cena) FROM tura, gorivo WHERE tura.gorivo_idgorivo = gorivo.idgorivo AND YEAR(tura.datum) = 2017) as Profit2017, (SELECT SUM(tura.iznos - gorivo.cena) FROM tura, gorivo WHERE tura.gorivo_idgorivo = gorivo.idgorivo AND YEAR(tura.datum) = 2018) as Profit2018, (SELECT Profit2018 - Profit2017) as ProfitDifference";
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 15:
-                    textBox1.Text = "16";
+                    q = "SELECT putnik.ime, putnik.prezime, 2018 - putnik.godina_rodjenja as god, SUM(premium_putnici.predjen_put) AS pp FROM premium_putnici JOIN putnik ON premium_putnici.putnik_idputnik = putnik.idputnik GROUP BY idputnik ORDER BY god ASC, pp DESC";
+                    runQuery(q);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
+
                 case 16:
                     q = "SELECT sofer.ime, sofer.prezime FROM ";
                     runQuery(q);
