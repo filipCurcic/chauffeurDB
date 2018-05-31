@@ -31,6 +31,7 @@ namespace soferski_servis
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            comboBox1.Items.Add("17. Šofer sa najvećim padom rejtinga u poslednjih godinu dana");
 
         }
 
@@ -185,183 +186,198 @@ namespace soferski_servis
             }
             return null;
         }
-        
+
+        static string q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20;
+
         public void button1_Click(object sender, EventArgs e)
         {
             int index = comboBox1.SelectedIndex;
             string tst = " JOIN sofer ON tura.sofer_idsofer = sofer.idsofer";
-            string q;
             switch (index)
             {
                 case 0:
-                    q = " SELECT tura.sofer_idsofer, sofer.ime, sofer.prezime" +
+                    q1 = " SELECT tura.sofer_idsofer, sofer.ime, sofer.prezime" +
                         " FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer " +
                         " WHERE tura.datum > (SELECT DATE_ADD(NOW(), INTERVAL -1 YEAR))" +
                         " GROUP BY tura.sofer_idsofer " +
                         " ORDER BY COUNT(*) DESC LIMIT 1;";
-                    runQuery(q);
+                    runQuery(q1);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 1:
-                    q = " SELECT AVG(rejting_sofera), sofer.ime, sofer.prezime, sofer_idsofer" +
+                    q2 = " SELECT AVG(rejting_sofera), sofer.ime, sofer.prezime, sofer_idsofer" +
                         " FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer" +
                         " WHERE tura.datum > (SELECT DATE_ADD(NOW(), INTERVAL -1 YEAR)) " +
                         " GROUP BY sofer_idsofer ASC LIMIT 1";
-                    runQuery(q);
+                    runQuery(q2);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 2:
-                    q = " SELECT tura_idtura, pocetna_lokacija, destinacija, COUNT(*) AS avg_tura" +
+                    q3 = " SELECT tura_idtura, pocetna_lokacija, destinacija, COUNT(*) AS avg_tura" +
                         " FROM putnici_u_turi JOIN tura ON putnici_u_turi.tura_idtura = tura.idtura " +
                         " GROUP BY tura_idtura " +
                         " ORDER BY avg_tura DESC LIMIT 1";
-                    runQuery(q);
+                    runQuery(q3);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 3:
-                    q = " SELECT pocetna_lokacija, destinacija, tura.iznos - gorivo.cena AS mks " +
+                    q4 = " SELECT pocetna_lokacija, destinacija, tura.iznos - gorivo.cena AS mks " +
                         " FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo " +
                         " ORDER BY mks DESC LIMIT 1;";
-                    runQuery(q);
+                    runQuery(q4);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 4:
-                    q = " SELECT destinacija, " +
+                    q5 = " SELECT destinacija, " +
                         " (SELECT COUNT(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2015) THEN destinacija ELSE null END)) as a1," +
                         " (SELECT COUNT(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2018) THEN destinacija ELSE null END)) as a2 " +
                         " FROM tura GROUP BY destinacija" +
                         " ORDER BY (SELECT COUNT(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2018) THEN destinacija ELSE null END)) - (SELECT COUNT(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2015) THEN destinacija ELSE null END))" +
                         " LIMIT 1";
-                    runQuery(q); 
+                    runQuery(q5); 
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 5:
-                    q = " SELECT sofer.ime, sofer.prezime, tura.kilometraza / gorivo.kolicina as odn" +
+                    q6 = " SELECT sofer.ime, sofer.prezime, tura.kilometraza / gorivo.kolicina as odn" +
                         " FROM tura JOIN sofer on tura.sofer_idsofer = sofer.idsofer" +
                         " JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo" +
                         " GROUP BY tura.sofer_idsofer" +
                         " ORDER BY odn DESC LIMIT 1";
-                    runQuery(q);
+                    runQuery(q6);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 6:
-                    q = " SELECT vozilo.brend, vozilo.model, SUM(CENA) as suma FROM" +
+                    q7 = " SELECT vozilo.brend, vozilo.model, SUM(CENA) as suma FROM" +
                         " servis JOIN vozilo ON servis.vozilo_idvozilo = vozilo.idvozilo " +
                         " WHERE servis.datum > (SELECT DATE_ADD(NOW(), INTERVAL -1 YEAR))" +
                         " GROUP BY servis.vozilo_idvozilo" +
                         " ORDER BY suma DESC LIMIT 1";
-                    runQuery(q);
+                    runQuery(q7);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 7:
-                    q = " SELECT vozilo.brend, vozilo.model FROM vozilo WHERE putnik.godina_rodjenja > 1995" +
+                    string q8d = " SELECT vozilo.brend, vozilo.model FROM vozilo WHERE putnik.godina_rodjenja > 1995" +
                         " JOIN tura ON tura.vozilo_idvozilo = vozilo.idvozilo " +
                         " JOIN putnici_u_turi ON tura.idtura = putnici_u_turi.tura_idtura" +
                         " JOIN putnik ON putnik.idputnik = putnici_u_turi.putnik_idputnik";
-                    string q2 = "SELECT vozilo.brend, vozilo.model, tura.datum, putnik.ime, putnik.prezime, putnik.godina_rodjenja, COUNT(vozilo.model) AS v FROM vozilo JOIN tura ON tura.vozilo_idvozilo = vozilo.idvozilo JOIN putnici_u_turi ON tura.idtura = putnici_u_turi.tura_idtura JOIN putnik ON putnik.idputnik = putnici_u_turi.putnik_idputnik WHERE putnik.godina_rodjenja > 1992 AND ((SELECT EXTRACT(MONTH FROM tura.datum)) = 6 OR (SELECT EXTRACT(MONTH FROM tura.datum)) = 7 OR (SELECT EXTRACT(MONTH FROM tura.datum)) = 8 OR (SELECT EXTRACT(MONTH FROM tura.datum)) = 9) GROUP BY vozilo.model ORDER BY v ASC LIMIT 1";
-                    runQuery(q2);
+                    q8 = "SELECT vozilo.brend, vozilo.model, tura.datum, putnik.ime, putnik.prezime, putnik.godina_rodjenja, COUNT(vozilo.model) AS v FROM vozilo JOIN tura ON tura.vozilo_idvozilo = vozilo.idvozilo JOIN putnici_u_turi ON tura.idtura = putnici_u_turi.tura_idtura JOIN putnik ON putnik.idputnik = putnici_u_turi.putnik_idputnik WHERE putnik.godina_rodjenja > 1992 AND ((SELECT EXTRACT(MONTH FROM tura.datum)) = 6 OR (SELECT EXTRACT(MONTH FROM tura.datum)) = 7 OR (SELECT EXTRACT(MONTH FROM tura.datum)) = 8 OR (SELECT EXTRACT(MONTH FROM tura.datum)) = 9) GROUP BY vozilo.model ORDER BY v ASC LIMIT 1";
+                    runQuery(q8);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 8:
-                    q = "SELECT (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 10 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS deset, (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 50 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS pdst, (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 100 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS sto";
+                    q9 = "SELECT (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 10 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS deset, (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 50 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS pdst, (SELECT tura.destinacija FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo WHERE kilometraza = 100 ORDER BY (tura.iznos - gorivo.cena) DESC LIMIT 1) AS sto";
 
-                    runQuery(q);
+                    runQuery(q9);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 9:
-                    q = " SELECT nacin_placanja.naziv, COUNT(nacin_placanja.naziv) AS npz" +
+                    q10 = " SELECT nacin_placanja.naziv, COUNT(nacin_placanja.naziv) AS npz" +
                         " FROM tura JOIN nacin_placanja ON tura.idnp = nacin_placanja.idnacin_placanja" +
                         " JOIN putnici_u_turi ON tura.idtura = putnici_u_turi.tura_idtura " +
                         " JOIN putnik ON putnici_u_turi.putnik_idputnik = putnik.idputnik " +
                         " WHERE YEAR(NOW()) - putnik.godina_rodjenja <= 25 " +
                         " GROUP BY nacin_placanja.naziv " +
                         " ORDER BY npz DESC LIMIT 1;";
-                    runQuery(q);
+                    runQuery(q10);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 10:
-                    textBox1.Text = "SELECT vozilo.brend, vozilo.model," +
+                    q11 = "SELECT vozilo.brend, vozilo.model," +
                         " (SELECT SUM(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2018) THEN tura.kilometraza ELSE null END)) - (SELECT SUM(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2017) THEN tura.kilometraza ELSE null END)) as razlika " +
                         " FROM tura JOIN vozilo ON tura.vozilo_idvozilo = vozilo.idvozilo " +
                         " GROUP BY vozilo.model " +
                         " ORDER BY razlika DESC LIMIT 1";
+                    runQuery(q11);
+                    addToTb(GetResult(myReader));
+                    databaseConnection.Close();
                     break;
                 case 11:
-                    q = " SELECT YEAR(NOW()) - putnik.godina_rodjenja AS gd " +
+                    q12 = " SELECT YEAR(NOW()) - putnik.godina_rodjenja AS gd " +
                         " FROM premium_putnici " +
                         " JOIN putnik ON premium_putnici.putnik_idputnik = putnik.idputnik " +
                         " GROUP BY putnik.godina_rodjenja" +
                         " ORDER BY putnik.godina_rodjenja DESC LIMIT 1";
-                    runQuery(q);
+                    runQuery(q12);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 12:
-                    q = " SELECT vozilo.brend, vozilo.model, tura.iznos / gorivo.kolicina as odnos" +
+                    q13 = " SELECT vozilo.brend, vozilo.model, tura.iznos / gorivo.kolicina as odnos" +
                         " FROM tura JOIN vozilo on tura.vozilo_idvozilo = vozilo.idvozilo " +
                         " JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo" +
                         " ORDER BY odnos ASC LIMIT 1";
-                    runQuery(q);
+                    runQuery(q13);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 13:
-                    q = "SELECT sofer.ime, sofer.prezime, AVG(tura.rejting_sofera) as s1 FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer WHERE (SELECT AVG(tura.rejting_sofera) WHERE YEAR(tura.datum) = 2018) > (SELECT AVG(tura.rejting_sofera) WHERE YEAR(tura.datum) = 2017) GROUP BY tura.sofer_idsofer";
-                    runQuery(q);
+                    q14 = "SELECT sofer.ime, sofer.prezime, AVG(tura.rejting_sofera) as s1" +
+                        " FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer" +
+                        " WHERE (SELECT AVG(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2017) THEN tura.rejting_sofera ELSE null END))" +
+                        " > " +
+                        " (SELECT AVG(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2018) THEN tura.rejting_sofera ELSE null END)) " +
+                        " GROUP BY tura.sofer_idsofer";
+                    runQuery(q14);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 14:
-                    q = "SELECT (SELECT SUM(tura.iznos - gorivo.cena) FROM tura, gorivo WHERE tura.gorivo_idgorivo = gorivo.idgorivo AND YEAR(tura.datum) = 2017) as Profit2017, (SELECT SUM(tura.iznos - gorivo.cena) FROM tura, gorivo WHERE tura.gorivo_idgorivo = gorivo.idgorivo AND YEAR(tura.datum) = 2018) as Profit2018, (SELECT Profit2018 - Profit2017) as ProfitDifference";
-                    runQuery(q);
+                    q15 = "SELECT (SELECT SUM(tura.iznos - gorivo.cena) FROM tura, gorivo WHERE tura.gorivo_idgorivo = gorivo.idgorivo AND YEAR(tura.datum) = 2017) as Profit2017, (SELECT SUM(tura.iznos - gorivo.cena) FROM tura, gorivo WHERE tura.gorivo_idgorivo = gorivo.idgorivo AND YEAR(tura.datum) = 2018) as Profit2018, (SELECT Profit2018 - Profit2017) as ProfitDifference";
+                    runQuery(q15);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 15:
-                    q = "SELECT putnik.ime, putnik.prezime, 2018 - putnik.godina_rodjenja as god, SUM(premium_putnici.predjen_put) AS pp FROM premium_putnici JOIN putnik ON premium_putnici.putnik_idputnik = putnik.idputnik GROUP BY idputnik ORDER BY god ASC, pp DESC";
-                    runQuery(q);
+                    q16 = "SELECT putnik.ime, putnik.prezime, 2018 - putnik.godina_rodjenja as god, SUM(premium_putnici.predjen_put) AS pp FROM premium_putnici JOIN putnik ON premium_putnici.putnik_idputnik = putnik.idputnik GROUP BY idputnik ORDER BY god ASC, pp DESC";
+                    runQuery(q16);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
 
                 case 16:
-                    q = "SELECT sofer.ime, sofer.prezime FROM ";
-                    runQuery(q);
+                    q17 = "SELECT sofer.ime, sofer.prezime" +
+                        " FROM tura JOIN sofer ON tura.sofer_idsofer = sofer.idsofer" +
+                        " GROUP BY idsofer " +
+                        " ORDER BY" +
+                        " (SELECT AVG(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2017) THEN tura.rejting_sofera ELSE null END)) " +
+                        " - (SELECT AVG(CASE WHEN (SELECT EXTRACT(YEAR FROM tura.datum) = 2018) THEN tura.rejting_sofera ELSE null END))" +
+                        " DESC LIMIT 1";
+                    runQuery(q17);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 17:
-                    q = " SELECT vozilo.brend, vozilo.model FROM tura" +
+                    q18 = " SELECT vozilo.brend, vozilo.model FROM tura" +
                         " JOIN vozilo ON tura.vozilo_idvozilo = vozilo.idvozilo" +
                         " JOIN putnici_u_turi ON tura.idtura = putnici_u_turi.tura_idtura" +
                         " GROUP BY putnici_u_turi.tura_idtura" +
                         " ORDER BY COUNT(putnici_u_turi.tura_idtura) DESC LIMIT 1;";
-                    runQuery(q);
+                    runQuery(q18);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 18:
-                    q = " SELECT tura.pocetna_lokacija, tura.destinacija " +
+                    q19 = " SELECT tura.pocetna_lokacija, tura.destinacija " +
                         " FROM putnici_u_turi JOIN tura ON putnici_u_turi.tura_idtura = tura.idtura" +
                         " GROUP BY putnici_u_turi.tura_idtura" +
                         " ORDER BY COUNT(putnici_u_turi.tura_idtura) DESC LIMIT 3";
-                    runQuery(q);
+                    runQuery(q19);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
                 case 19:
-                    q = "SELECT DATE_ADD(mm, DATEDIFF(MONTH, 0, tura.datum), 0) AS asd)";
-                    runQuery(q);
+                    q20 = "SELECT MONTH(tura.datum) as mesec, SUM(tura.iznos) - gorivo.cena AS profit FROM tura JOIN gorivo ON tura.gorivo_idgorivo = gorivo.idgorivo GROUP BY mesec ORDER BY profit DESC LIMIT 1";
+                    runQuery(q20);
                     addToTb(GetResult(myReader));
                     databaseConnection.Close();
                     break;
@@ -370,7 +386,7 @@ namespace soferski_servis
             }
             
         }
-        
+       
         private void addToTb(string text)
         {
             textBox1.Text = text;
@@ -488,8 +504,10 @@ namespace soferski_servis
             comboBox1.Items.Add("13. Vozilo sa najmanjim odnosom potrošenog goriva i prihoda po turi");
             comboBox1.Items.Add("14. Soferi koji imaju bolje prosecne ocene od putnika ove godine u poredjenju sa proslom");
             comboBox1.Items.Add("15.  Promena profita u odnosu na prethodnu godinu poslovanja");
-            comboBox1.Items.Add("16. Premium putnik sa najvecim rastom predjenog puta u poslednjih 6 meseci");
-            comboBox1.Items.Add("17. Šofer sa najvećim padom rejtinga u poslednjih 3 meseca poslovanja");
+            comboBox1.Items.Add("16. Najmladji premium putnik sa najvecim predjenim putom");
+            comboBox1.Items.Add("17. Šofer sa najvećim padom rejtinga u poslednjih godinu dana");
+            comboBox1.Items.Add("17. Šofer sa najvećim padom rejtinga u poslednjih godinu dana");
+            comboBox1.Items.Add("17. Šofer sa najvećim padom rejtinga u poslednjih godinu dana");
             comboBox1.Items.Add("18. Vozilo sa najvećim prosečnim brojem putnika po turi ");
             comboBox1.Items.Add("19. 3 najčešće ture sa 3 ili više putnika u vozilu");
             comboBox1.Items.Add("20. Koji mesec u godini donosi najveci profit");
@@ -525,6 +543,34 @@ namespace soferski_servis
         private void textBox2_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            executeAllQueries();
+        }
+        string[] queries2 = new string[20] { q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20 };
+        string[] texts = new string[20] { "1. Šofer sa najviše obavljenih tura u prethodnoj godini poslovanja", "2. Šofer sa najboljim prosecnim rejtingom na godisnjim nivou",
+            "3. Tura sa najvećim prosečnim brojem putnika u letnjem periodu", "4. Tura koja donosi najveći profit", "5. Lokacija sa najvećim padom popularnosti u poslednjih 3 godine",
+            "6.  Šofer sa najboljim odnosom potrošenog goriva i pređene kilometraže", "7. Vozilo sa najvecim troskovima servis u poslednji godinu dana",
+            "8. Najmanje popularno vozilo kod putnika mladjih od 25 godina u letnjem periodu", "9.  Najprofitabilnija destinacija na 10km, na 50km I na 100km",
+            "10.  Najpopularniji nacin placanja kod putnika ispod 25 godina", "11. Vozilo sa najvećim porastom kilometraže u poslednjoj godini poslovanja",
+            "12. Starost putnika sa najmanje zastupljenim premium clanstvom ", "13. Vozilo sa najmanjim odnosom potrošenog goriva i prihoda po turi",
+            "14. Soferi koji imaju bolje prosecne ocene od putnika ove godine u poredjenju sa proslom", "15.  Promena profita u odnosu na prethodnu godinu poslovanja",
+            "16. Najmladji premium putnik sa najvecim predjenim putom",
+            "17. Šofer sa najvećim padom rejtinga u poslednjih godinu dana", "18. Vozilo sa najvećim prosečnim brojem putnika po turi ",
+            "19. 3 najčešće ture sa 3 ili više putnika u vozilu", "20. Koji mesec u godini donosi najveci profit"
+        };
+        private void executeAllQueries()
+        {
+            for (int i = 0; i<=queries2.Length; i++)
+            {
+                runQuery(queries2[i]);
+                addToTb(GetResult(myReader));
+                addToTb(texts[i]);
+                databaseConnection.Close();
+
+            }
         }
     }
 }
